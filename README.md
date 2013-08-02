@@ -34,7 +34,7 @@ Extend :
 --------
 
 ### Create module :
-touch ./modules/<modulename>.py
+touch ./modules/modulename.py
 
 ### Base structure
 #!/usr/bin/python
