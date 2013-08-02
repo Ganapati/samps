@@ -37,18 +37,18 @@ Extend :
 touch ./modules/modulename.py
 
 ### Base structure
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+    #!/usr/bin/python
+    # -*- coding: utf-8 -*-
 
-from scapy.all import *
+    from scapy.all import *
 
-class module:
-    def processPacket(self, packet):
-        # write packet analysis here
+    class module:
+        def processPacket(self, packet):
+            # write packet analysis here
 
-    def getDescription(self):
-        return "%s (%s)" % (self.moduleName, self.moduleDescription) 
+        def getDescription(self):
+            return "%s (%s)" % (self.moduleName, self.moduleDescription) 
 
-    def __init__(self):
-        self.moduleName = "moduleName"
-        self.moduleDescription = "Module description"
+        def __init__(self):
+            self.moduleName = "moduleName"
+            self.moduleDescription = "Module description"
