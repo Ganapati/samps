@@ -8,27 +8,27 @@ Usage :
 ### list available modules :
 ./main.py -l
 
-[*] Loading modules
-    |-Using all modules
-[*] List of all modules
-    |-popCredentials (Sniff POP credentials)
-    |-httpCredentials (Sniff HTTP credentials)
-    |-ftpCredentials (Sniff FTP credentials)
+    [*] Loading modules
+        |-Using all modules
+    [*] List of all modules
+        |-popCredentials (Sniff POP credentials)
+        |-httpCredentials (Sniff HTTP credentials)
+        |-ftpCredentials (Sniff FTP credentials)
 
 ### Start sniffing with all modules :
 sudo ./main.py -i mon0
 
-[*] Loading modules
-    |-Using all modules
-[*] Start sniffind on mon0
+    [*] Loading modules
+        |-Using all modules
+    [*] Start sniffind on mon0
 
 ### Start sniffing with selected modules :
 sudo ./main.py -i mon0 -m "ftpCredentials, popCredentials"
 
-[*] Loading modules
-    |-Using popCredentials
-    |-Using ftpCredentials
-[*] Start sniffind on mon0
+    [*] Loading modules
+        |-Using popCredentials
+        |-Using ftpCredentials
+    [*] Start sniffind on mon0
 
 Extend :
 --------
@@ -50,5 +50,5 @@ touch ./modules/modulename.py
             return "%s (%s)" % (self.moduleName, self.moduleDescription) 
 
         def __init__(self):
-            self.moduleName = "moduleName"
+            self.moduleName = "module name"
             self.moduleDescription = "Module description"
