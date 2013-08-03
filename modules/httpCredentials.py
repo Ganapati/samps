@@ -22,4 +22,4 @@ class module:
         self.moduleName = "httpCredentials"
         self.moduleDescription = "Sniff HTTP credentials"
         self.keywords = ['pass', 'secret', 'login', 'identifier', 'username']
-        self.regex = re.compile(r'[?&]((?:' + '|'.join(self.keywords) + ')[^=]*)=([^&\s]*)', re.IGNORECASE)
+        self.regex = re.compile(r'((?:' + '|'.join(self.keywords) + ')[^=]*)=([^&\s]*)', re.IGNORECASE)
