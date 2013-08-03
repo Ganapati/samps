@@ -8,10 +8,12 @@ class module:
     def processPacket(self, packet):
         if packet.payload.dport == 110:
             data = packet.payload.payload.payload.fields["load"]
-            if data.find("USER "):
-                print "[+] POP user for %s : %s" % (packet.payload.dst, data.replace("USER ", ""))
-            if data.find("PASS "):
-                print "[+] POP pass for %s : %s" % (packet.payload.dst, data.replace("PASS ", ""))
+            if data.lower().startswith("user "):
+                print "[+] POP user for %s : %s" % (packet.payload.dst,
+                        data.lower().replace("user ", "").rstrip())
+            if data.lower().startswith("pass "):
+                print "[+] POP pass for %s : %s" % (packet.payload.dst,
+                        data.lower().replace("pass ", "").rstrip())
 
     def getDescription(self):
         return "%s (%s)" % (self.moduleName, self.moduleDescription) 
