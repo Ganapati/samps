@@ -10,7 +10,7 @@ class module:
         if packet.payload.dport == 80:
             data = packet.payload.payload.payload.fields["load"]
             if data.startswith('GET') or data.startswith("POST"):
-                if any(word in data for word in self.keywords):
+                if any(word.lower() in data.lower() for word in self.keywords):
                     responses = self.regex.findall(data)
                     for response in responses:
                         print "[+] HTTP %s sent to %s : %s" % (response[0], packet.payload.dst, response[1])
