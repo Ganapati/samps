@@ -35,20 +35,20 @@ def startNetwork(interface, arp):
     # ARP poisoning preparation
     if arp != None:
         global arp_poisoning
-#       try:
-        arp_poisoning = ArpPoisoning()
-        # Configure routing and iptables for arp poisoning
-        arp_poisoning.configure(interface)
+        try:
+            arp_poisoning = ArpPoisoning()
+            # Configure routing and iptables for arp poisoning
+            arp_poisoning.configure(interface)
             
-        # Prepare packet
-        ips = arp.split('-')
-        arp_poisoning.setPacket(ips[1], ips[0])
+            # Prepare packet
+            ips = arp.split('-')
+            arp_poisoning.setPacket(ips[1], ips[0])
             
-        print "[*] Start arp poisoning"
-        arp_poisoning.start()
-#       except:
-#           arp_poisoning = None
-#           print "[!] ARP poisoning failed"
+            print "[*] Start arp poisoning"
+            arp_poisoning.start()
+        except:
+            arp_poisoning = None
+            print "[!] ARP poisoning failed"
 
     # Sniffing packets
     print "[*] Start sniffind on %s" % interface
