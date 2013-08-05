@@ -3,6 +3,10 @@ Simple And Modular Packet Sniffer
 
 Python / Scapy
 
+TODO :
+-----
+Fix : Catch Ctrl+c and kill threads
+
 Usage :
 -------
 ### list available modules :
