@@ -37,8 +37,13 @@ def startNetwork(interface, arp):
         t = None
         if arp != None:
             try:
+                # Configure routing and iptables for arp poisoning
+                ArpPoisoning.configure(args.interface)
+                
+                # Prepare packet
                 ips = arp.split('-')
                 packet = ArpPoisoning.getPacket(ips[1], ips[0])
+                
                 print "[*] Start arp poisoning"
                 t = Thread(target=ArpPoisoning.inject, args =(packet))
                 t.start()
@@ -99,9 +104,6 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.interface != None:
-        # configure routing and iptables for arp poisoning
-        if args.arp != None:
-            ArpPoisoning.configure(args.interface)
         # Start sniffing and arp poisoning
         startNetwork(args.interface, args.arp)
     else:
