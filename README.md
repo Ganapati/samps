@@ -5,8 +5,8 @@ Python / Scapy
 
 TODO :
 -----
-Fix : Catch Ctrl+c and kill threads
-Change : move ARP poisoning into external class
+ - Fix : Catch Ctrl+c and kill threads
+ - Change : move ARP poisoning into external class
 
 Usage :
 -------
