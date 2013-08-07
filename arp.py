@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
 from scapy.all import *
-from threading import Thread
+from threading import Thread, Event
 import time
 
 class ArpPoisoning(Thread):
 
     def __init__(self):
         Thread.__init__(self)
-        self.is_running = True
+        self.stop_event = Event()
         self.packet = None
 
     def configure(self, interface):
@@ -31,9 +31,9 @@ class ArpPoisoning(Thread):
 
     def run(self):
         if self.packet != None:
-            while self.is_running:
+            while not self.stop_event.isSet():
                 send(self.packet, verbose=False)
                 time.sleep(5)
 
     def stop(self):
-        self.is_running = False
+        self.stop_event.set()
